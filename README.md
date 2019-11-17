@@ -15,3 +15,12 @@ app["cd {path}"] = args => FS.CD(args[0]);
 app["pwd"] = args => FS.PWD();
 app.Run();
 ```
+
+### Tab to complete or list commands
+`> ls` <kbd>Tab</kbd>
+```
+ls                       ls {pattern}
+ls {pattern} {options}
+
+> ls
+```
