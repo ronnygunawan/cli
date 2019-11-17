@@ -16,9 +16,9 @@ app["pwd"] = args => FS.PWD();
 app.Run();
 ```
 
-### Tab to complete or list commands
-`> ls` <kbd>Tab</kbd>
+### <kbd>Tab</kbd> to complete or list commands
 ```
+> ls
 ls                       ls {pattern}
 ls {pattern} {options}
 
