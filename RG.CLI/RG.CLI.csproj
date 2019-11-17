@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <Authors>Ronny Gunawan</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>(c) 2019 Ronny Gunawan</Copyright>
+    <PackageProjectUrl>https://github.com/ronnygunawan/cli</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ronnygunawan/cli</RepositoryUrl>
+    <PackageTags>cli</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+</Project>
