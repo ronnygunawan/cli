@@ -32,9 +32,9 @@ namespace RG.CLI.Internal {
 		}
 
 		private static bool IsCommandWord(string word) => word.Length > 0 && char.IsLetter(word[0]) && word.All(c => char.IsLetterOrDigit(c));
-		private static bool IsArgumentWord(string word) => word.Length > 0 && word.StartsWith("{") && word.EndsWith("}") && IsCommandWord(word[1..^1]);
+		private static bool IsArgumentWord(string word) => word.Length > 0 && word.StartsWith("{", StringComparison.InvariantCulture) && word.EndsWith("}", StringComparison.InvariantCulture) && IsCommandWord(word[1..^1]);
 
-		public override bool Equals(object obj) => obj is Command command && Keywords == command.Keywords && EqualityComparer<ImmutableList<string>>.Default.Equals(Parameters, command.Parameters);
+		public override bool Equals(object? obj) => obj is Command command && Keywords == command.Keywords && EqualityComparer<ImmutableList<string>>.Default.Equals(Parameters, command.Parameters);
 		public override int GetHashCode() => HashCode.Combine(Keywords, Parameters);
 
 		public static bool operator ==(Command left, Command right) => EqualityComparer<Command>.Default.Equals(left, right);

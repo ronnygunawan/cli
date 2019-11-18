@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace RG.CLI.Internal {
-	internal static class Input {
+	internal static class CommandInput {
 		internal static readonly List<string> _commandHistory = new List<string>();
-		internal static int _commandHistoryPos = 0;
+		internal static int _commandHistoryPos;
+
 		internal static string ReadLine(ICollection<Command> commands) {
 			Console.BackgroundColor = ConsoleColor.Black;
 			Console.ForegroundColor = ConsoleColor.Gray;
@@ -29,7 +29,7 @@ namespace RG.CLI.Internal {
 						return line;
 					case ConsoleKey.Backspace: {
 							if (line.Length > 0 && Console.CursorLeft > 2) {
-								if (keyInfo.Modifiers.HasFlag(ConsoleModifiers.Control)) {
+								if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0) {
 									int pos = Console.CursorLeft - 2;
 									int lastIndex = pos > 1 ? line.LastIndexOf(' ', pos - 2) : -1;
 									if (lastIndex >= 0) {
@@ -51,7 +51,7 @@ namespace RG.CLI.Internal {
 						}
 					case ConsoleKey.Delete: {
 							if (line.Length > 0 && Console.CursorLeft - 2 < line.Length) {
-								if (keyInfo.Modifiers.HasFlag(ConsoleModifiers.Control)) {
+								if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0) {
 									int pos = Console.CursorLeft - 2;
 									int index = pos < line.Length - 1 ? line.IndexOf(' ', pos + 1) : -1;
 									if (index >= 0) {
@@ -73,7 +73,7 @@ namespace RG.CLI.Internal {
 						}
 					case ConsoleKey.LeftArrow:
 						if (Console.CursorLeft > 2) {
-							if (keyInfo.Modifiers.HasFlag(ConsoleModifiers.Control)) {
+							if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0) {
 								int pos = Console.CursorLeft - 2;
 								int lastIndex = pos > 1 ? line.LastIndexOf(' ', pos - 2) : -1;
 								if (lastIndex >= 0) {
@@ -88,7 +88,7 @@ namespace RG.CLI.Internal {
 						break;
 					case ConsoleKey.RightArrow:
 						if (Console.CursorLeft < line.Length + 2) {
-							if (keyInfo.Modifiers.HasFlag(ConsoleModifiers.Control)) {
+							if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0) {
 								int pos = Console.CursorLeft - 2;
 								int index = pos < line.Length - 1 ? line.IndexOf(' ', pos + 1) : -1;
 								if (index >= 0) {
@@ -223,6 +223,7 @@ namespace RG.CLI.Internal {
 				}
 			}
 		}
+
 		private static void WriteColorizedLine(string line, ICollection<Command> commands, int trailingSpaces, int? cursorLeft = null) {
 			Console.CursorVisible = false;
 			Console.BackgroundColor = ConsoleColor.Black;

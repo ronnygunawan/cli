@@ -14,10 +14,12 @@ namespace RG.CLI.Internal {
 			}
 			yield return str.Substring(nextPiece);
 		}
+
 		internal static string TrimMatchingQuotes(this string str, char quote) {
 			if ((str.Length >= 2) &&
-				(str[0] == quote) && (str[^1] == quote))
+				(str[0] == quote) && (str[^1] == quote)) {
 				return str[1..^1];
+			}
 			return str;
 		}
 
@@ -31,7 +33,7 @@ namespace RG.CLI.Internal {
 				isEscaping = false;
 				return !inQuotes && char.IsWhiteSpace(c);
 			})
-				.Select(arg => arg.Trim().TrimMatchingQuotes('\"').Replace("\\\"", "\""))
+				.Select(arg => arg.Trim().TrimMatchingQuotes('\"').Replace("\\\"", "\"", StringComparison.InvariantCulture))
 				.Where(arg => !string.IsNullOrEmpty(arg));
 		}
 	}
