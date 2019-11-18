@@ -11,7 +11,7 @@
     <PackageTags>cli</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Description>Write console app without worrying about input logic.</Description>
   </PropertyGroup>
 
@@ -20,7 +20,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="RG.CodeAnalyzer" Version="1.0.4" />
+    <PackageReference Include="RG.CodeAnalyzer" Version="1.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Roslynator.Analyzers" Version="2.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
