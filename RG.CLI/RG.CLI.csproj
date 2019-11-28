@@ -11,7 +11,7 @@
     <PackageTags>cli</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Description>Write console app without worrying about input logic.</Description>
   </PropertyGroup>
 
