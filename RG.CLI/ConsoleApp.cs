@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace RG.CLI {
 	public partial class ConsoleApp {
+		private readonly ConsoleWriter _consoleWriter = new ConsoleWriter();
 		private readonly Dictionary<Command, Action<string[]>> _actionByCommand;
 		private readonly string _exitCommand;
 		private readonly IServiceCollection _serviceCollection;
@@ -47,20 +48,32 @@ namespace RG.CLI {
 						action.Invoke(args);
 						if (_applicationExited) return;
 					} catch (Exception exc) {
-						Console.BackgroundColor = ConsoleColor.Red;
-						Console.ForegroundColor = ConsoleColor.White;
-						Console.WriteLine(exc.Message);
+						_consoleWriter.WriteLine(exc.Message, ConsoleColor.Red, ConsoleColor.White);
 					}
 				} else {
-					Console.BackgroundColor = ConsoleColor.Red;
-					Console.ForegroundColor = ConsoleColor.White;
-					Console.WriteLine($"'{commandText}' is not a recognized command.");
+					_consoleWriter.WriteLine($"'{commandText}' is not a recognized command.", ConsoleColor.Red, ConsoleColor.White);
 				}
 			}
 		}
 
 		public void Exit() {
 			_applicationExited = true;
+		}
+
+		public ConsoleWriter Write(string text, ConsoleColor? foregroundColor = null, ConsoleColor? backgroundColor = null) {
+			return _consoleWriter.Write(text, foregroundColor, backgroundColor);
+		}
+
+		public ConsoleWriter WriteLine(string text, ConsoleColor? foregroundColor = null, ConsoleColor? backgroundColor = null) {
+			return _consoleWriter.WriteLine(text, foregroundColor, backgroundColor);
+		}
+
+		public ConsoleWriter WriteLine() {
+			return _consoleWriter.WriteLine();
+		}
+
+		public ConsoleWriter Clear(ConsoleColor? foregroundColor = null, ConsoleColor? backgroundColor = null) {
+			return _consoleWriter.Clear(foregroundColor, backgroundColor);
 		}
 
 		private bool TryGetAction(

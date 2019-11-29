@@ -8,219 +8,224 @@ namespace RG.CLI.Internal {
 		internal static int _commandHistoryPos;
 
 		internal static string ReadLine(ICollection<Command> commands) {
-			Console.BackgroundColor = ConsoleColor.Black;
-			Console.ForegroundColor = ConsoleColor.Gray;
-			string line = "";
-			string? lookupKeyword = null;
-			WriteColorizedLine(line, commands, 0);
-			for (; ; ) {
-				ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
-				switch (keyInfo.Key) {
-					case ConsoleKey.Enter:
-						if (line.Length == 0) break;
-						WriteColorizedLine(line, commands, 0);
-						Console.WriteLine();
-						if (_commandHistoryPos < _commandHistory.Count - 1) {
-							_commandHistory.Insert(_commandHistoryPos + 1, line);
-						} else {
-							_commandHistory.Add(line);
-						}
-						_commandHistoryPos++;
-						return line;
-					case ConsoleKey.Backspace: {
-							if (line.Length > 0 && Console.CursorLeft > 2) {
+			try {
+				ConsoleWriter.SaveColors();
+				Console.BackgroundColor = ConsoleColor.Black;
+				Console.ForegroundColor = ConsoleColor.Gray;
+				string line = "";
+				string? lookupKeyword = null;
+				WriteColorizedLine(line, commands, 0);
+				for (; ; ) {
+					ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
+					switch (keyInfo.Key) {
+						case ConsoleKey.Enter:
+							if (line.Length == 0) break;
+							WriteColorizedLine(line, commands, 0);
+							Console.WriteLine();
+							if (_commandHistoryPos < _commandHistory.Count - 1) {
+								_commandHistory.Insert(_commandHistoryPos + 1, line);
+							} else {
+								_commandHistory.Add(line);
+							}
+							_commandHistoryPos++;
+							return line;
+						case ConsoleKey.Backspace: {
+								if (line.Length > 0 && Console.CursorLeft > 2) {
+									if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0) {
+										int pos = Console.CursorLeft - 2;
+										int lastIndex = pos > 1 ? line.LastIndexOf(' ', pos - 2) : -1;
+										if (lastIndex >= 0) {
+											int removed = pos - lastIndex;
+											line = line[..(lastIndex + 1)] + line[pos..];
+											WriteColorizedLine(line, commands, removed, lastIndex + 3);
+										} else {
+											int removed = pos - lastIndex;
+											line = line[pos..];
+											WriteColorizedLine(line, commands, removed, 2);
+										}
+									} else {
+										int pos = Console.CursorLeft - 2;
+										line = line[..(pos - 1)] + line[pos..];
+										WriteColorizedLine(line, commands, 1, pos + 1);
+									}
+								}
+								break;
+							}
+						case ConsoleKey.Delete: {
+								if (line.Length > 0 && Console.CursorLeft - 2 < line.Length) {
+									if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0) {
+										int pos = Console.CursorLeft - 2;
+										int index = pos < line.Length - 1 ? line.IndexOf(' ', pos + 1) : -1;
+										if (index >= 0) {
+											int removed = index - pos;
+											line = line[..pos] + line[index..];
+											WriteColorizedLine(line, commands, removed, pos + 2);
+										} else {
+											int removed = line.Length - pos;
+											line = line[..pos];
+											WriteColorizedLine(line, commands, removed, 2);
+										}
+									} else {
+										int pos = Console.CursorLeft - 2;
+										line = line[..pos] + line[(pos + 1)..];
+										WriteColorizedLine(line, commands, 1, pos + 2);
+									}
+								}
+								break;
+							}
+						case ConsoleKey.LeftArrow:
+							if (Console.CursorLeft > 2) {
 								if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0) {
 									int pos = Console.CursorLeft - 2;
 									int lastIndex = pos > 1 ? line.LastIndexOf(' ', pos - 2) : -1;
 									if (lastIndex >= 0) {
-										int removed = pos - lastIndex;
-										line = line[..(lastIndex + 1)] + line[pos..];
-										WriteColorizedLine(line, commands, removed, lastIndex + 3);
+										Console.CursorLeft = lastIndex + 3;
 									} else {
-										int removed = pos - lastIndex;
-										line = line[pos..];
-										WriteColorizedLine(line, commands, removed, 2);
+										Console.CursorLeft = 2;
 									}
 								} else {
-									int pos = Console.CursorLeft - 2;
-									line = line[..(pos - 1)] + line[pos..];
-									WriteColorizedLine(line, commands, 1, pos + 1);
+									Console.CursorLeft--;
 								}
 							}
 							break;
-						}
-					case ConsoleKey.Delete: {
-							if (line.Length > 0 && Console.CursorLeft - 2 < line.Length) {
+						case ConsoleKey.RightArrow:
+							if (Console.CursorLeft < line.Length + 2) {
 								if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0) {
 									int pos = Console.CursorLeft - 2;
 									int index = pos < line.Length - 1 ? line.IndexOf(' ', pos + 1) : -1;
 									if (index >= 0) {
-										int removed = index - pos;
-										line = line[..pos] + line[index..];
-										WriteColorizedLine(line, commands, removed, pos + 2);
+										Console.CursorLeft = index + 3;
 									} else {
-										int removed = line.Length - pos;
-										line = line[..pos];
-										WriteColorizedLine(line, commands, removed, 2);
+										Console.CursorLeft = line.Length + 2;
 									}
 								} else {
-									int pos = Console.CursorLeft - 2;
-									line = line[..pos] + line[(pos + 1)..];
-									WriteColorizedLine(line, commands, 1, pos + 2);
+									Console.CursorLeft++;
 								}
 							}
 							break;
-						}
-					case ConsoleKey.LeftArrow:
-						if (Console.CursorLeft > 2) {
-							if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0) {
-								int pos = Console.CursorLeft - 2;
-								int lastIndex = pos > 1 ? line.LastIndexOf(' ', pos - 2) : -1;
-								if (lastIndex >= 0) {
-									Console.CursorLeft = lastIndex + 3;
-								} else {
-									Console.CursorLeft = 2;
-								}
-							} else {
-								Console.CursorLeft--;
+						case ConsoleKey.Home:
+							Console.CursorLeft = 2;
+							break;
+						case ConsoleKey.End:
+							Console.CursorLeft = line.Length + 2;
+							break;
+						case ConsoleKey.UpArrow:
+							if (_commandHistoryPos > 0) {
+								_commandHistoryPos--;
 							}
-						}
-						break;
-					case ConsoleKey.RightArrow:
-						if (Console.CursorLeft < line.Length + 2) {
-							if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0) {
-								int pos = Console.CursorLeft - 2;
-								int index = pos < line.Length - 1 ? line.IndexOf(' ', pos + 1) : -1;
-								if (index >= 0) {
-									Console.CursorLeft = index + 3;
-								} else {
-									Console.CursorLeft = line.Length + 2;
-								}
-							} else {
-								Console.CursorLeft++;
+							if (_commandHistoryPos < _commandHistory.Count) {
+								line = _commandHistory[_commandHistoryPos];
+								WriteColorizedLine(line, commands, Console.BufferWidth - line.Length - 3, line.Length + 2);
 							}
-						}
-						break;
-					case ConsoleKey.Home:
-						Console.CursorLeft = 2;
-						break;
-					case ConsoleKey.End:
-						Console.CursorLeft = line.Length + 2;
-						break;
-					case ConsoleKey.UpArrow:
-						if (_commandHistoryPos > 0) {
-							_commandHistoryPos--;
-						}
-						if (_commandHistoryPos < _commandHistory.Count) {
-							line = _commandHistory[_commandHistoryPos];
+							break;
+						case ConsoleKey.DownArrow:
+							if (_commandHistoryPos < _commandHistory.Count) {
+								_commandHistoryPos++;
+							}
+							if (_commandHistoryPos < _commandHistory.Count) {
+								line = _commandHistory[_commandHistoryPos];
+							} else {
+								line = "";
+							}
 							WriteColorizedLine(line, commands, Console.BufferWidth - line.Length - 3, line.Length + 2);
-						}
-						break;
-					case ConsoleKey.DownArrow:
-						if (_commandHistoryPos < _commandHistory.Count) {
-							_commandHistoryPos++;
-						}
-						if (_commandHistoryPos < _commandHistory.Count) {
-							line = _commandHistory[_commandHistoryPos];
-						} else {
-							line = "";
-						}
-						WriteColorizedLine(line, commands, Console.BufferWidth - line.Length - 3, line.Length + 2);
-						break;
-					case ConsoleKey.Tab:
-						string? completion = AutoCompleteLine(line, commands, out List<Command>? matchingCommands);
-						if (completion != null) {
-							line = completion;
-							WriteColorizedLine(line, commands, 0);
-						} else if (matchingCommands != null && lookupKeyword != line) {
-							Console.WriteLine();
-							WriteCommandTable(matchingCommands);
-							WriteColorizedLine(line, commands, 0);
-							lookupKeyword = line;
-						}
-						break;
-					case ConsoleKey.Clear:
-					case ConsoleKey.Pause:
-					case ConsoleKey.Escape:
-					case ConsoleKey.PageUp:
-					case ConsoleKey.PageDown:
-					case ConsoleKey.Select:
-					case ConsoleKey.Print:
-					case ConsoleKey.Execute:
-					case ConsoleKey.PrintScreen:
-					case ConsoleKey.Insert:
-					case ConsoleKey.Help:
-					case ConsoleKey.LeftWindows:
-					case ConsoleKey.RightWindows:
-					case ConsoleKey.Applications:
-					case ConsoleKey.Sleep:
-					case ConsoleKey.F1:
-					case ConsoleKey.F2:
-					case ConsoleKey.F3:
-					case ConsoleKey.F4:
-					case ConsoleKey.F5:
-					case ConsoleKey.F6:
-					case ConsoleKey.F7:
-					case ConsoleKey.F8:
-					case ConsoleKey.F9:
-					case ConsoleKey.F10:
-					case ConsoleKey.F11:
-					case ConsoleKey.F12:
-					case ConsoleKey.F13:
-					case ConsoleKey.F14:
-					case ConsoleKey.F15:
-					case ConsoleKey.F16:
-					case ConsoleKey.F17:
-					case ConsoleKey.F18:
-					case ConsoleKey.F19:
-					case ConsoleKey.F20:
-					case ConsoleKey.F21:
-					case ConsoleKey.F22:
-					case ConsoleKey.F23:
-					case ConsoleKey.F24:
-					case ConsoleKey.BrowserBack:
-					case ConsoleKey.BrowserForward:
-					case ConsoleKey.BrowserRefresh:
-					case ConsoleKey.BrowserStop:
-					case ConsoleKey.BrowserSearch:
-					case ConsoleKey.BrowserFavorites:
-					case ConsoleKey.BrowserHome:
-					case ConsoleKey.VolumeMute:
-					case ConsoleKey.VolumeDown:
-					case ConsoleKey.VolumeUp:
-					case ConsoleKey.MediaNext:
-					case ConsoleKey.MediaPrevious:
-					case ConsoleKey.MediaStop:
-					case ConsoleKey.MediaPlay:
-					case ConsoleKey.LaunchMail:
-					case ConsoleKey.LaunchMediaSelect:
-					case ConsoleKey.LaunchApp1:
-					case ConsoleKey.LaunchApp2:
-					case ConsoleKey.Process:
-					case ConsoleKey.Packet:
-					case ConsoleKey.Attention:
-					case ConsoleKey.CrSel:
-					case ConsoleKey.ExSel:
-					case ConsoleKey.EraseEndOfFile:
-					case ConsoleKey.Play:
-					case ConsoleKey.Zoom:
-					case ConsoleKey.NoName:
-					case ConsoleKey.Pa1:
-					case ConsoleKey.OemClear:
-						break;
-					default:
-						if (line.Length < Console.BufferWidth - 4) {
-							int pos = Console.CursorLeft - 2;
-							if (pos >= line.Length) {
-								line += keyInfo.KeyChar;
+							break;
+						case ConsoleKey.Tab:
+							string? completion = AutoCompleteLine(line, commands, out List<Command>? matchingCommands);
+							if (completion != null) {
+								line = completion;
 								WriteColorizedLine(line, commands, 0);
-							} else {
-								line = line[..pos] + keyInfo.KeyChar + line[pos..];
-								WriteColorizedLine(line, commands, 0, pos + 3);
+							} else if (matchingCommands != null && lookupKeyword != line) {
+								Console.WriteLine();
+								WriteCommandTable(matchingCommands);
+								WriteColorizedLine(line, commands, 0);
+								lookupKeyword = line;
 							}
-						}
-						break;
+							break;
+						case ConsoleKey.Clear:
+						case ConsoleKey.Pause:
+						case ConsoleKey.Escape:
+						case ConsoleKey.PageUp:
+						case ConsoleKey.PageDown:
+						case ConsoleKey.Select:
+						case ConsoleKey.Print:
+						case ConsoleKey.Execute:
+						case ConsoleKey.PrintScreen:
+						case ConsoleKey.Insert:
+						case ConsoleKey.Help:
+						case ConsoleKey.LeftWindows:
+						case ConsoleKey.RightWindows:
+						case ConsoleKey.Applications:
+						case ConsoleKey.Sleep:
+						case ConsoleKey.F1:
+						case ConsoleKey.F2:
+						case ConsoleKey.F3:
+						case ConsoleKey.F4:
+						case ConsoleKey.F5:
+						case ConsoleKey.F6:
+						case ConsoleKey.F7:
+						case ConsoleKey.F8:
+						case ConsoleKey.F9:
+						case ConsoleKey.F10:
+						case ConsoleKey.F11:
+						case ConsoleKey.F12:
+						case ConsoleKey.F13:
+						case ConsoleKey.F14:
+						case ConsoleKey.F15:
+						case ConsoleKey.F16:
+						case ConsoleKey.F17:
+						case ConsoleKey.F18:
+						case ConsoleKey.F19:
+						case ConsoleKey.F20:
+						case ConsoleKey.F21:
+						case ConsoleKey.F22:
+						case ConsoleKey.F23:
+						case ConsoleKey.F24:
+						case ConsoleKey.BrowserBack:
+						case ConsoleKey.BrowserForward:
+						case ConsoleKey.BrowserRefresh:
+						case ConsoleKey.BrowserStop:
+						case ConsoleKey.BrowserSearch:
+						case ConsoleKey.BrowserFavorites:
+						case ConsoleKey.BrowserHome:
+						case ConsoleKey.VolumeMute:
+						case ConsoleKey.VolumeDown:
+						case ConsoleKey.VolumeUp:
+						case ConsoleKey.MediaNext:
+						case ConsoleKey.MediaPrevious:
+						case ConsoleKey.MediaStop:
+						case ConsoleKey.MediaPlay:
+						case ConsoleKey.LaunchMail:
+						case ConsoleKey.LaunchMediaSelect:
+						case ConsoleKey.LaunchApp1:
+						case ConsoleKey.LaunchApp2:
+						case ConsoleKey.Process:
+						case ConsoleKey.Packet:
+						case ConsoleKey.Attention:
+						case ConsoleKey.CrSel:
+						case ConsoleKey.ExSel:
+						case ConsoleKey.EraseEndOfFile:
+						case ConsoleKey.Play:
+						case ConsoleKey.Zoom:
+						case ConsoleKey.NoName:
+						case ConsoleKey.Pa1:
+						case ConsoleKey.OemClear:
+							break;
+						default:
+							if (line.Length < Console.BufferWidth - 4) {
+								int pos = Console.CursorLeft - 2;
+								if (pos >= line.Length) {
+									line += keyInfo.KeyChar;
+									WriteColorizedLine(line, commands, 0);
+								} else {
+									line = line[..pos] + keyInfo.KeyChar + line[pos..];
+									WriteColorizedLine(line, commands, 0, pos + 3);
+								}
+							}
+							break;
+					}
 				}
+			} finally {
+				ConsoleWriter.RestoreColors();
 			}
 		}
 
