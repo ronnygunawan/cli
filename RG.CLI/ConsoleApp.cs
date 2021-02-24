@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace RG.CLI {
 	public partial class ConsoleApp {
-		private readonly ConsoleWriter _consoleWriter = new ConsoleWriter();
+		private readonly ConsoleWriter _consoleWriter = new();
 		private readonly Dictionary<Command, Action<string[]>> _actionByCommand;
 		private readonly string _exitCommand;
 		private readonly IServiceCollection _serviceCollection;

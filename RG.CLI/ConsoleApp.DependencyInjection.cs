@@ -136,6 +136,6 @@ namespace RG.CLI {
 			return _serviceCollection;
 		}
 
-		public T GetService<T>() => _serviceProvider.GetService<T>();
+		public T? GetService<T>() => _serviceProvider!.GetService<T>();
 	}
 }
